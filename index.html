@@ -1,254 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Loading...</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totally Normal Website</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    background:black;
-    overflow:hidden;
-    font-family:Arial, sans-serif;
-    height:100vh;
-    cursor:none;
-}
-
-/* Fake loading screen */
-#loading{
-    position:absolute;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    color:white;
-    background:#111;
-}
-
-.spinner{
-    width:80px;
-    height:80px;
-    border:8px solid #333;
-    border-top:8px solid #00ffcc;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-    margin-bottom:30px;
-}
-
-@keyframes spin{
-    to{
-        transform:rotate(360deg);
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+        cursor: none;
+        user-select: none;
     }
-}
 
-#loading h1{
-    font-size:2rem;
-    letter-spacing:2px;
-}
+    #message {
+        font-size: 2rem;
+        text-align: center;
+    }
 
-/* Prank screen */
-#prank{
-    display:none;
-    position:absolute;
-    inset:0;
-    background:black;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    animation:flashBg 0.2s infinite;
-}
+    .scary {
+        background: red;
+        color: yellow;
+        font-size: 5rem;
+        animation: flash 0.2s infinite;
+    }
 
-#prank h1{
-    color:red;
-    font-size:6vw;
-    text-align:center;
-    text-shadow:0 0 20px red;
-    animation:shake 0.1s infinite;
-}
-
-#prank p{
-    margin-top:20px;
-    color:white;
-    font-size:2vw;
-}
-
-@keyframes flashBg{
-    0%{background:black;}
-    50%{background:#300;}
-    100%{background:black;}
-}
-
-@keyframes shake{
-    0%{transform:translate(2px,2px);}
-    25%{transform:translate(-2px,1px);}
-    50%{transform:translate(2px,-2px);}
-    75%{transform:translate(-2px,-1px);}
-    100%{transform:translate(2px,2px);}
-}
-
-/* Fake terminal */
-#terminal{
-    position:absolute;
-    inset:0;
-    color:#00ff00;
-    background:black;
-    padding:20px;
-    font-family:monospace;
-    font-size:18px;
-    display:none;
-    overflow:hidden;
-    white-space:pre-line;
-}
-cursor: none;
-overflow: hidden;
-user-select: none;
+    @keyframes flash {
+        0% { background: red; }
+        50% { background: black; }
+        100% { background: red; }
+    }
 </style>
 </head>
 <body>
 
-<div id="loading">
-    <div class="spinner"></div>
-    <h1>Loading Secure Content...</h1>
+<div id="message">
+    Click anywhere to continue...
 </div>
-
-<div id="prank">
-    <h1>⚠ SYSTEM BREACH DETECTED ⚠</h1>
-    <p>Your files are being uploaded...</p>
-</div>
-
-<div id="terminal"></div>
 
 <script>
-let activated = false;
 
-/* Fake hacker terminal lines */
-const hackerLines = [
-    "Connecting to remote server...",
-    "Bypassing firewall...",
-    "Access granted.",
-    "Downloading passwords...",
-    "Uploading private files...",
-    "Injecting malware...",
-    "Taking webcam snapshot...",
-    "Deleting system32...",
-    "ERROR...",
-    "JUST KIDDING 😂"
-];
+function goFullscreen() {
 
-/* Main prank */
-async function activatePrank() {
+    const elem = document.documentElement;
 
-    if (activated) return;
-    activated = true;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+    }
 
-    /* Try fullscreen */
-    try {
-        await document.documentElement.requestFullscreen();
-    } catch(e){}
+    // Change page content for prank
+    document.body.classList.add("scary");
 
-    /* Hide loading */
-    document.getElementById("loading").style.display = "none";
+    document.getElementById("message").innerHTML =
+        "💀 YOU HAVE BEEN PRANKED 💀";
 
-    /* Show terminal first */
-    const terminal = document.getElementById("terminal");
-    terminal.style.display = "block";
+    // Optional sound
+    const audio = new Audio(
+        "https://www.soundjay.com/button/beep-07.wav"
+    );
 
-    let i = 0;
-
-    const interval = setInterval(() => {
-
-        terminal.innerHTML += hackerLines[i] + "\n";
-
-        /* Auto scroll */
-        terminal.scrollTop = terminal.scrollHeight;
-
-        i++;
-
-        /* Beep sound */
-        beep();
-
-        if(i >= hackerLines.length){
-
-            clearInterval(interval);
-
-            setTimeout(() => {
-
-                terminal.style.display = "none";
-
-                document.getElementById("prank").style.display = "flex";
-
-                loudBeep();
-
-            }, 1500);
-        }
-
-    }, 700);
+    audio.play();
 }
 
-/* Trigger on ANY interaction */
-[
-    "mousemove",
-    "mouseenter",
-    "mouseover",
-    "keydown",
-    "click",
-    "touchstart"
-].forEach(event => {
-    document.addEventListener(event, activatePrank, {once:true});
-});
+// Trigger on first click
+document.body.addEventListener("click", goFullscreen, { once: true });
 
-/* Small beep */
-function beep(){
 
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+// Try to re-enter fullscreen if user exits
+setInterval(() => {
 
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    if (!document.fullscreenElement) {
 
-    osc.type = "square";
-    osc.frequency.value = 500;
+        document.documentElement
+            .requestFullscreen()
+            .catch(() => {});
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    }
 
-    gain.gain.value = 0.05;
+}, 1000);
 
-    osc.start();
-
-    setTimeout(() => {
-        osc.stop();
-    }, 80);
-}
-
-/* Loud final beep */
-function loudBeep(){
-
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = "sawtooth";
-    osc.frequency.value = 120;
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    gain.gain.value = 0.2;
-
-    osc.start();
-
-    setTimeout(() => {
-        osc.stop();
-    }, 1000);
-}
 </script>
 
 </body>
